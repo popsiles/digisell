@@ -1,57 +1,40 @@
-# Prylora — Digital Products Store
+# Prylora
 
-Two separate web applications live in this repository:
+## Website
+- Store: https://prylora.netlify.app
+- Admin login: https://prylora.netlify.app/admin
+- The store has no admin button or admin link. Open the admin URL directly.
+- Admin code is lazy-loaded only on the /admin route. Security does not rely on hiding this route: Supabase Auth, the admin allowlist, row-level security, storage policies and server-side checks protect administrator actions.
 
-- **Public storefront**: root of the repository. Build command: `npm run build`; publish directory: `dist`.
-- **Private admin**: `admin-site/`. It is a separate app and a separate Netlify site. Set the Netlify site's base directory to `admin-site`, build command to `npm run build`, and publish directory to `dist`.
+## Backend
+Supabase project: qpvnfpbzhrszhgukmqpb.
+Edge Function: store-api.
+Webhook URL: https://qpvnfpbzhrszhgukmqpb.supabase.co/functions/v1/store-api/webhook
 
-## Connected backend
-Supabase project: `qpvnfpbzhrszhgukmqpb`
+The product catalogue, orders, administrator allowlist and private download files are stored in Supabase. Digital files stay in the private product-files bucket. A download link is created only after a paid order is verified.
 
-The database has products, categories, orders, administrators and webhook event tables, row-level security, public product-image storage and private product-file storage. An administrator email allowlist is stored in the private database schema.
+## Administrator account
+The one permitted admin address is stored in the private Supabase allowlist. First-time login at /admin uses the Create admin account option; set a personal password there. Supabase sends an email-confirmation link. After confirming, return to /admin and sign in with that email/password.
+Only this allowlisted email can enter the admin dashboard. Never store the password in source code or commit it to GitHub.
 
-## Important payment setup still required
-The Dodo integration code is in the Supabase Edge Function named `store-api`. The Dodo **API key and webhook signing secret are not included in this repository and have not been configured here**. They must be entered as private Supabase Edge Function secrets:
+## One remaining Supabase Auth setting
+In Supabase Dashboard → Authentication → URL Configuration, add this exact redirect URL:
+https://prylora.netlify.app/admin
+Keep the existing Site URL set to:
+https://prylora.netlify.app
 
-- `DODO_PAYMENTS_API_KEY` — create a fresh key in Dodo **Test Mode**.
-- `DODO_ENVIRONMENT` — set to `test_mode`.
-- `DODO_WEBHOOK_SECRET` — copy from your Dodo webhook endpoint's signing-secret panel.
+## Dodo Payments — still requires the owner's private keys
+The Dodo API key and webhook signing secret have not been configured in Supabase. Do not put them into GitHub or the website code.
+In Dodo Dashboard, switch to Test Mode and create a fresh API key. Add these secrets in Supabase Dashboard → Edge Functions → Secrets:
+- DODO_PAYMENTS_API_KEY = your fresh Dodo test API key
+- DODO_ENVIRONMENT = test_mode
+- DODO_WEBHOOK_SECRET = your Dodo webhook signing secret
 
-Webhook destination:
-`https://qpvnfpbzhrszhgukmqpb.supabase.co/functions/v1/store-api/webhook`
+Register the webhook URL above and subscribe to payment.succeeded, payment.failed, payment.cancelled and refund.succeeded. The backend verifies the webhook signature with the Dodo SDK and independently retrieves successful payments before unlocking downloads.
+Payments remain unavailable until the Dodo secrets and webhook have been configured. The old API key was pasted into chat earlier: revoke it and use a new key.
 
-Subscribe to payment succeeded, payment failed, payment cancelled and refund succeeded. Never put these secrets in GitHub, Netlify frontend variables, or browser code.
+## SEO and app details
+The build creates /sitemap.xml automatically and includes every published product URL. /robots.txt blocks admin indexing. The app manifest and SVG favicon are in /public. Add https://prylora.netlify.app/sitemap.xml to Google Search Console after the site is ready.
 
-The backend defaults to Dodo's `test_mode` unless `DODO_ENVIRONMENT=live_mode` is explicitly set. Payments will not work until the missing secrets are entered and the webhook is registered.
-
-## One-time Supabase Auth setup
-In Supabase → Authentication → URL Configuration:
-- Keep the public storefront domain in the allowed redirect URL list.
-- Add the separate private admin site's domain (for example `https://prylora-control.netlify.app/**`) to the allowed redirect URL list.
-- The exact public storefront URL is stored in `public.settings.site_url` and must be updated to the final public Netlify domain. This value controls Dodo's return URL.
-
-Only the email already stored in the private admin allowlist can become an administrator. A non-allowlisted user may authenticate but cannot access administrator data or functions.
-
-## Local development
-Storefront:
-```bash
-npm install
-npm run dev
-```
-
-Admin (run from the `admin-site` folder):
-```bash
-npm install
-npm run dev
-```
-
-## Verification checklist
-- GitHub Actions builds both the public storefront and the separate admin app.
-- Test product create/edit/unpublish/delete and file/image uploads.
-- Verify Dodo test checkout, signed webhook and server-side payment retrieval.
-- Confirm pending/failed orders cannot download files.
-- Confirm paid downloads use short-lived private signed URLs.
-- Test both apps on mobile, tablet and desktop.
-
-## Security boundary
-The public storefront bundle does not import or route to the admin application. The admin app is built from a separate directory and published to a separate Netlify site. No admin link, login button, or admin route is present in the public store. The backend independently checks the authenticated user's administrator row for every admin operation.
+## Build
+Netlify uses npm run build and publishes dist. GitHub Actions checks the Vite build and sitemap generation on every push.
