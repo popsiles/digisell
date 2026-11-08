@@ -1,4 +1,5 @@
 import React,{useEffect,useMemo,useState}from"react";
+import "./admin.css";
 import{createClient}from"@supabase/supabase-js";
 import{Package,ShoppingBag,LogOut,Plus,Pencil,Trash2,Upload,CheckCircle2,Clock3,TrendingUp,ShieldCheck,ArrowLeft,Tags,RefreshCw,LockKeyhole}from"lucide-react";
 const ADMIN_EMAIL="kzladda44@gmail.com";
