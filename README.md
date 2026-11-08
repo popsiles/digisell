@@ -51,3 +51,7 @@ Build command: `npm run build`; publish directory: `dist`. The repo includes `ne
 - Images are in the public `product-images` bucket.
 - Email delivery requires a Resend API key and verified sender.
 - Validate the installed Dodo SDK's product-sync methods and exact event payloads against the merchant account before going live.
+
+
+## Separate private admin site
+The public storefront build only contains `index.html` and the public Store component. It has no administrator route, login link or admin bundle. Build the private admin app separately with `npm run build:admin`; publish directory is `admin-dist`. Use a second Netlify site connected to this same GitHub repository, with build command `npm run build:admin` and publish directory `admin-dist`. Its URL is independent of the storefront. Add the private admin site's URL to Supabase Auth's allowed redirect URLs. Only the email in the private Supabase admin allowlist receives admin permissions.
