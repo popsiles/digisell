@@ -1,1 +1,8 @@
-import React from "react";import{createRoot}from"react-dom/client";import Store from"./Store.jsx";import"./styles.css";createRoot(document.getElementById("root")).render(<React.StrictMode><Store/></React.StrictMode>);
+import React,{lazy,Suspense}from"react";
+import{createRoot}from"react-dom/client";
+import Store from"./Store.jsx";
+import"./styles.css";
+const Admin=lazy(()=>import("./Admin.jsx"));
+const isAdmin=window.location.pathname.replace(/\\/+$/,"")==="/admin";
+function App(){return isAdmin?<Suspense fallback={<div className="loading">Opening secure admin…</div>}><Admin/></Suspense>:<Store/>}
+createRoot(document.getElementById("root")).render(<React.StrictMode><App/></React.StrictMode>);
