@@ -3,10 +3,20 @@
   publish = "dist"
 [build.environment]
   NODE_VERSION = "22"
+
+# Serve a live sitemap generated from currently published products.
+[[redirects]]
+  from = "/sitemap.xml"
+  to = "https://qpvnfpbzhrszhgukmqpb.supabase.co/functions/v1/store-api/sitemap.xml"
+  status = 200
+  force = true
+
+# SPA routes: product pages and the private admin login.
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
 [[headers]]
   for = "/admin"
   [headers.values]
