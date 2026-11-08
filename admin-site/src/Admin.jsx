@@ -1,7 +1,7 @@
 import React,{useEffect,useMemo,useState}from"react";
 import{createClient}from"@supabase/supabase-js";
 import{Package,ShoppingBag,LogOut,Plus,Pencil,Trash2,Upload,CheckCircle2,Clock3,TrendingUp,ShieldCheck,ArrowLeft,Tags,RefreshCw,LockKeyhole}from"lucide-react";
-const URL="https://qpvnfpbzhrszhgukmqpb.supabase.co",KEY="sb_publishable__5MvrK_ufbeKAfl87Ma1gA_wTSp8r2l",sb=createClient(URL,KEY),API=(route,options={})=>fetch(`${URL}/functions/v1/store-api/${route}`,options);
+const URL="https://qpvnfpbzhrszhgukmqpb.supabase.co",KEY="sb_publishable__5MvrK_ufbeKAfl87Ma1gA_wTSp8r2l",sb=createClient(URL,KEY),API=(route,options={})=>fetch(`${URL}/functions/v1/store-api/${route}`,{...options,headers:{"apikey":KEY,"Content-Type":"application/json",...(options.headers||{})}});
 const money=(c=0,cur="USD")=>new Intl.NumberFormat(undefined,{style:"currency",currency:cur}).format((Number(c)||0)/100),date=d=>new Date(d).toLocaleString();
 async function call(route,body,token){const r=await API(route,{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${token}`},body:JSON.stringify(body)}),j=await r.json();if(!r.ok)throw Error(j.error||"Request failed");return j}
 export default function Admin(){const[user,setUser]=useState(null),[authorized,setAuthorized]=useState(false),[checking,setChecking]=useState(true),[email,setEmail]=useState(""),[notice,setNotice]=useState(""),[busy,setBusy]=useState(false),[section,setSection]=useState("products"),[products,setProducts]=useState([]),[categories,setCategories]=useState([]),[orders,setOrders]=useState([]),[form,setForm]=useState(null);
