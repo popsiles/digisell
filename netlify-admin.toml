@@ -1,6 +1,0 @@
-[build]
-  command = "npm run build:admin"
-  publish = "admin-dist"
-
-[build.environment]
-  NODE_VERSION = "22"
